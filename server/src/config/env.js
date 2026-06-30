@@ -23,7 +23,7 @@ export const env = {
   CLOUDINARY_API_SECRET: _required('CLOUDINARY_API_SECRET'),
 
   EMAIL_HOST: process.env.EMAIL_HOST || 'smtp.gmail.com',
-  EMAIL_PORT: process.env.EMAIL_PORT || 587,
+  EMAIL_PORT: process.env.EMAIL_PORT || 465,
   EMAIL_USER: _required('EMAIL_USER'),
   EMAIL_PASS: _required('EMAIL_PASS'),
   EMAIL_FROM: process.env.EMAIL_FROM || 'MediBook <no-reply@medibook.com>',

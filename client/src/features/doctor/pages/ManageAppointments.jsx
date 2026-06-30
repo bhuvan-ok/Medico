@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../../lib/axios.js';
 import toast from 'react-hot-toast';
 import Badge from '../../../components/ui/Badge.jsx';
@@ -9,10 +10,12 @@ import EmptyState from '../../../components/ui/EmptyState.jsx';
 import SkeletonCard from '../../../components/ui/SkeletonCard.jsx';
 import Pagination from '../../../components/ui/Pagination.jsx';
 import { formatDate } from '../../../utils/formatDate.js';
+import { FiFileText } from 'react-icons/fi';
 
 const STATUSES = ['', 'pending', 'confirmed', 'completed', 'cancelled'];
 
 export default function ManageAppointments() {
+  const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [pagination, setPagination] = useState({});
   const [loading, setLoading] = useState(true);
@@ -100,6 +103,18 @@ export default function ManageAppointments() {
               {appt.status === 'confirmed' && (
                 <div className="mt-3 pt-3 border-t border-border">
                   <Button variant="outline" size="sm" onClick={() => complete(appt._id)}>Mark Complete</Button>
+                </div>
+              )}
+              {appt.status === 'completed' && (
+                <div className="mt-3 pt-3 border-t border-border">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={() => navigate(`/doctor/appointments/${appt._id}`)}
+                  >
+                    <FiFileText size={13} /> Write Prescription
+                  </Button>
                 </div>
               )}
             </div>

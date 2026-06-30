@@ -23,6 +23,7 @@ const prescriptionSchema = new mongoose.Schema(
     patientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     diagnosis: { type: String, required: true },
     medicines: [medicineSchema],
+    tests: [{ type: String }],
     advice: String,
     followUpDate: Date,
     documentUrl: {

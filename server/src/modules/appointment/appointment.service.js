@@ -10,6 +10,7 @@ import {
   appointmentCancelledTemplate,
 } from '../../utils/emailTemplates.js';
 import { createNotification } from '../notification/notification.service.js';
+import { emitSlotBooked } from '../../socket/index.js';
 
 export const bookAppointment = async (patientId, { slotId, doctorId, type, notes }, paymentData = null) => {
   const doctorProfile = await DoctorProfile.findOne({ userId: doctorId });
@@ -63,9 +64,15 @@ export const bookAppointment = async (patientId, { slotId, doctorId, type, notes
     Slot.findById(slotId),
   ]);
 
+  const isoDate = slot.date.toISOString().split('T')[0];
+  emitSlotBooked(doctorId.toString(), isoDate, slotId.toString());
+
   const dateStr = slot.date.toDateString();
   const template = appointmentBookedTemplate(patient.name, doctor.name, dateStr, slot.startTime, type);
-  await sendEmail({ to: patient.email, ...template });
+  sendEmail({ to: patient.email, ...template }).catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error('[Email] Appointment booked email failed:', err.message);
+  });
 
   await createNotification({
     userId: patientId,
@@ -130,14 +137,14 @@ export const cancelAppointment = async (userId, appointmentId, reason, userRole)
   const dateStr = slotId.date.toDateString();
   const cancelledBy = isAdmin ? 'Admin' : 'the patient';
 
-  await sendEmail({
+  sendEmail({
     to: patientId.email,
     ...appointmentCancelledTemplate(patientId.name, patientId.name, doctorId.name, dateStr, slotId.startTime, cancelledBy),
-  });
-  await sendEmail({
+  }).catch((err) => console.error('[Email] Cancel email failed:', err.message)); // eslint-disable-line no-console
+  sendEmail({
     to: doctorId.email,
     ...appointmentCancelledTemplate(doctorId.name, patientId.name, doctorId.name, dateStr, slotId.startTime, cancelledBy),
-  });
+  }).catch((err) => console.error('[Email] Cancel email failed:', err.message)); // eslint-disable-line no-console
 
   await createNotification({
     userId: patientId._id,

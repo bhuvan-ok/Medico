@@ -1,6 +1,8 @@
+import { createServer } from 'http';
 import { env } from './config/env.js';
 import { connectDB } from './config/db.js';
 import app from './app.js';
+import { initSocket } from './socket/index.js';
 import { initCronJobs } from './utils/cronJobs.js';
 import { seedAdmin } from './utils/seedAdmin.js';
 
@@ -12,7 +14,10 @@ const start = async () => {
   await seedAdmin();
   initCronJobs();
 
-  app.listen(env.PORT, () => {
+  const httpServer = createServer(app);
+  initSocket(httpServer);
+
+  httpServer.listen(env.PORT, () => {
     // eslint-disable-next-line no-console
     console.log(`Server running on port ${env.PORT} [${env.NODE_ENV}]`);
   });

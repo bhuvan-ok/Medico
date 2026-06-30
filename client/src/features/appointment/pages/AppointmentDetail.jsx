@@ -11,7 +11,7 @@ import Avatar from '../../../components/ui/Avatar.jsx';
 import Spinner from '../../../components/ui/Spinner.jsx';
 import { formatDate } from '../../../utils/formatDate.js';
 import { formatCurrency } from '../../../utils/formatCurrency.js';
-import { FiStar, FiCalendar, FiClock, FiVideo, FiUser, FiDollarSign, FiArrowLeft, FiCheckCircle } from 'react-icons/fi';
+import { FiStar, FiCalendar, FiClock, FiVideo, FiUser, FiDollarSign, FiArrowLeft, FiCheckCircle, FiFileText, FiDownload } from 'react-icons/fi';
 import { ROLES } from '../../../lib/constants.js';
 
 export default function AppointmentDetail() {
@@ -27,11 +27,19 @@ export default function AppointmentDetail() {
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
   const [reviewLoading, setReviewLoading] = useState(false);
+  const [prescription, setPrescription] = useState(null);
   const { register, handleSubmit } = useForm();
 
   useEffect(() => {
     axiosInstance.get(`/appointments/${id}`)
-      .then(({ data }) => setAppointment(data.data))
+      .then(({ data }) => {
+        setAppointment(data.data);
+        if (data.data.status === 'completed') {
+          axiosInstance.get(`/prescriptions/${id}`)
+            .then(({ data: rxData }) => setPrescription(rxData.data))
+            .catch(() => {});
+        }
+      })
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -127,6 +135,79 @@ export default function AppointmentDetail() {
           )}
         </div>
       </div>
+
+      {/* Prescription card — shown when appointment is completed and prescription exists */}
+      {status === 'completed' && prescription && (
+        <div className="bg-white rounded-xl border border-border p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FiFileText size={15} className="text-primary" />
+              <h2 className="font-semibold text-gray-900 text-sm">Prescription</h2>
+            </div>
+            {prescription.documentUrl?.url && (
+              <a href={prescription.documentUrl.url} target="_blank" rel="noreferrer">
+                <button className="flex items-center gap-1 text-xs text-primary hover:underline">
+                  <FiDownload size={12} /> Download
+                </button>
+              </a>
+            )}
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold text-neutral uppercase tracking-wider mb-1">Diagnosis</p>
+            <p className="text-sm text-gray-900">{prescription.diagnosis}</p>
+          </div>
+
+          {prescription.medicines?.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-neutral uppercase tracking-wider mb-2">Medicines</p>
+              <div className="space-y-1.5">
+                {prescription.medicines.map((m, i) => (
+                  <div key={i} className="bg-surface rounded-lg px-3 py-2 text-sm">
+                    <span className="font-medium text-gray-900">{m.name}</span>
+                    {m.dosage && <span className="text-neutral"> — {m.dosage}</span>}
+                    {m.frequency && <span className="text-neutral">, {m.frequency}</span>}
+                    {m.duration && <span className="text-neutral">, {m.duration}</span>}
+                    {m.instructions && <p className="text-xs text-neutral mt-0.5">{m.instructions}</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {prescription.tests?.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-neutral uppercase tracking-wider mb-2">Tests Advised</p>
+              <div className="flex flex-wrap gap-2">
+                {prescription.tests.map((t, i) => (
+                  <span key={i} className="bg-primary/10 text-primary text-xs font-medium px-2.5 py-1 rounded-full">{t}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {prescription.advice && (
+            <div>
+              <p className="text-xs font-semibold text-neutral uppercase tracking-wider mb-1">Advice</p>
+              <p className="text-sm text-neutral">{prescription.advice}</p>
+            </div>
+          )}
+
+          {prescription.followUpDate && (
+            <div>
+              <p className="text-xs font-semibold text-neutral uppercase tracking-wider mb-1">Follow-up</p>
+              <p className="text-sm text-gray-900">{formatDate(prescription.followUpDate)}</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {status === 'completed' && !prescription && (
+        <div className="bg-white rounded-xl border border-border px-5 py-4 flex items-center gap-3 text-sm text-neutral">
+          <FiFileText size={15} className="text-gray-300" />
+          No prescription has been issued for this appointment yet.
+        </div>
+      )}
 
       {/* Cancel modal */}
       <Modal isOpen={cancelModal} onClose={() => setCancelModal(false)} title="Cancel Appointment">

@@ -31,14 +31,16 @@ const sendAppointmentReminders = async () => {
     const dateStr = appt.slotId.date.toDateString();
     const time = appt.slotId.startTime;
 
-    await sendEmail({
-      to: appt.patientId.email,
-      ...appointmentReminderTemplate(appt.patientId.name, appt.doctorId.name, dateStr, time, appt.type),
-    });
-    await sendEmail({
-      to: appt.doctorId.email,
-      ...appointmentReminderTemplate(`Dr. ${appt.doctorId.name}`, appt.patientId.name, dateStr, time, appt.type),
-    });
+    await Promise.allSettled([
+      sendEmail({
+        to: appt.patientId.email,
+        ...appointmentReminderTemplate(appt.patientId.name, appt.doctorId.name, dateStr, time, appt.type),
+      }),
+      sendEmail({
+        to: appt.doctorId.email,
+        ...appointmentReminderTemplate(`Dr. ${appt.doctorId.name}`, appt.patientId.name, dateStr, time, appt.type),
+      }),
+    ]);
 
     appt.reminderSent = true;
     await appt.save();

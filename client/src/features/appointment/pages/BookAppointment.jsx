@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosInstance from '../../../lib/axios.js';
+import socket from '../../../lib/socket.js';
 import toast from 'react-hot-toast';
 import Button from '../../../components/ui/Button.jsx';
 import Spinner from '../../../components/ui/Spinner.jsx';
@@ -57,6 +58,31 @@ export default function BookAppointment() {
       .finally(() => setLoading(false));
     loadRazorpayScript();
   }, [doctorId]);
+
+  // Join socket room while on slot-selection step so we get live slot-booked events
+  useEffect(() => {
+    if (step !== 1 || !doctorId || !date) return;
+
+    socket.emit('join-slots', { doctorId, date });
+
+    const handleSlotBooked = ({ slotId }) => {
+      setSlots((prev) => prev.map((s) => s._id === slotId ? { ...s, status: 'booked' } : s));
+      setSelectedSlot((prev) => {
+        if (prev?._id === slotId) {
+          toast.error('This slot was just taken. Please choose another.');
+          return null;
+        }
+        return prev;
+      });
+    };
+
+    socket.on('slot:booked', handleSlotBooked);
+
+    return () => {
+      socket.emit('leave-slots', { doctorId, date });
+      socket.off('slot:booked', handleSlotBooked);
+    };
+  }, [step, doctorId, date]);
 
   const loadSlots = async () => {
     if (!date) return;
@@ -319,11 +345,15 @@ export default function BookAppointment() {
 }
 
 function SlotButton({ slot, selected, onSelect }) {
+  const taken = slot.status === 'booked';
   return (
     <button
-      onClick={() => onSelect(slot)}
+      onClick={() => !taken && onSelect(slot)}
+      disabled={taken}
       className={`py-2 px-1 rounded-lg text-xs font-medium border transition-all text-center ${
-        selected
+        taken
+          ? 'bg-gray-50 text-gray-300 border-gray-100 line-through cursor-not-allowed'
+          : selected
           ? 'bg-primary text-white border-primary shadow-sm shadow-primary/30'
           : 'bg-white text-gray-700 border-gray-200 hover:border-primary hover:text-primary'
       }`}

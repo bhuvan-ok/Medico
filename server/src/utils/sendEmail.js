@@ -5,10 +5,16 @@ import { env } from '../config/env.js';
 // Using EMAIL_USER directly prevents Gmail from silently overriding/rejecting
 // a mismatched From header, which causes emails to be dropped or spam-flagged.
 export const sendEmail = async ({ to, subject, html }) => {
-  await transporter.sendMail({
+  const send = transporter.sendMail({
     from: `MediBook <${env.EMAIL_USER}>`,
     to,
     subject,
     html,
   });
+
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('SMTP timeout after 12 s')), 12000)
+  );
+
+  await Promise.race([send, timeout]);
 };

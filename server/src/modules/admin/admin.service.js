@@ -105,7 +105,10 @@ export const verifyDoctor = async (adminId, doctorUserId, approved, reason) => {
     await profile.save();
 
     const template = doctorVerifiedTemplate(profile.userId.name);
-    await sendEmail({ to: profile.userId.email, ...template });
+    sendEmail({ to: profile.userId.email, ...template }).catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error('[Email] Doctor verified email failed:', err.message);
+    });
 
     await createNotification({
       userId: doctorUserId,
@@ -116,7 +119,10 @@ export const verifyDoctor = async (adminId, doctorUserId, approved, reason) => {
     });
   } else {
     const template = doctorRejectedTemplate(profile.userId.name, reason);
-    await sendEmail({ to: profile.userId.email, ...template });
+    sendEmail({ to: profile.userId.email, ...template }).catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error('[Email] Doctor rejected email failed:', err.message);
+    });
   }
 
   return profile;

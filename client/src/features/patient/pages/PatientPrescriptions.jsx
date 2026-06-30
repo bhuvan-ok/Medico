@@ -58,6 +58,16 @@ export default function PatientPrescriptions() {
                   </div>
                 </div>
               )}
+              {p.tests?.length > 0 && (
+                <div className="mt-3">
+                  <p className="font-medium text-gray-900 mb-2 text-sm">Tests Advised:</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {p.tests.map((t, i) => (
+                      <span key={i} className="bg-primary/10 text-primary text-xs font-medium px-2.5 py-1 rounded-full">{t}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
               {p.advice && <p className="text-sm text-neutral mt-3"><span className="font-medium text-gray-900">Advice:</span> {p.advice}</p>}
               {p.followUpDate && <p className="text-sm text-neutral mt-1"><span className="font-medium text-gray-900">Follow-up:</span> {formatDate(p.followUpDate)}</p>}
             </div>

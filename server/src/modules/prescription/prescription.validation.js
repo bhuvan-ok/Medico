@@ -11,7 +11,8 @@ const medicineSchema = z.object({
 export const createPrescriptionSchema = z.object({
   body: z.object({
     diagnosis: z.string().min(1),
-    medicines: z.array(medicineSchema).min(1),
+    medicines: z.array(medicineSchema).default([]),
+    tests: z.array(z.string().min(1)).default([]),
     advice: z.string().optional(),
     followUpDate: z.string().optional(),
   }),
@@ -22,6 +23,7 @@ export const updatePrescriptionSchema = z.object({
   body: z.object({
     diagnosis: z.string().min(1).optional(),
     medicines: z.array(medicineSchema).optional(),
+    tests: z.array(z.string().min(1)).optional(),
     advice: z.string().optional(),
     followUpDate: z.string().optional(),
   }),

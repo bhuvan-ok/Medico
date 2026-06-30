@@ -34,6 +34,7 @@ import DoctorDashboard from '../features/doctor/pages/DoctorDashboard.jsx';
 import ManageAppointments from '../features/doctor/pages/ManageAppointments.jsx';
 import ManageSchedule from '../features/doctor/pages/ManageSchedule.jsx';
 import DoctorProfilePage from '../features/doctor/pages/DoctorProfilePage.jsx';
+import WritePrescription from '../features/doctor/pages/WritePrescription.jsx';
 
 // Appointment pages
 import BookAppointment from '../features/appointment/pages/BookAppointment.jsx';
@@ -119,6 +120,7 @@ export default function AppRoutes() {
         >
           <Route path="dashboard" element={<DoctorDashboard />} />
           <Route path="appointments" element={<ManageAppointments />} />
+          <Route path="appointments/:id" element={<WritePrescription />} />
           <Route path="schedule" element={<ManageSchedule />} />
           <Route path="profile" element={<DoctorProfilePage />} />
           <Route path="notifications" element={<NotificationsPage />} />

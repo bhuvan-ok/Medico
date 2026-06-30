@@ -53,7 +53,10 @@ export const register = async (body) => {
   await user.save({ validateBeforeSave: false });
 
   const template = emailVerificationTemplate(name, rawToken);
-  await sendEmail({ to: email, ...template });
+  sendEmail({ to: email, ...template }).catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error('[Email] Failed to send verification email:', err.message);
+  });
 
   return { _id: user._id, name: user.name, email: user.email, role: user.role };
 };
@@ -84,7 +87,10 @@ export const resendVerification = async (userId) => {
   await user.save({ validateBeforeSave: false });
 
   const template = emailVerificationTemplate(user.name, rawToken);
-  await sendEmail({ to: user.email, ...template });
+  sendEmail({ to: user.email, ...template }).catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error('[Email] Failed to resend verification email:', err.message);
+  });
 };
 
 export const login = async (email, password, res) => {
@@ -151,7 +157,10 @@ export const forgotPassword = async (email) => {
   await user.save({ validateBeforeSave: false });
 
   const template = passwordResetTemplate(user.name, rawToken);
-  await sendEmail({ to: user.email, ...template });
+  sendEmail({ to: user.email, ...template }).catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error('[Email] Failed to send password reset email:', err.message);
+  });
 };
 
 export const findOrCreateGoogleUser = async (profile) => {
