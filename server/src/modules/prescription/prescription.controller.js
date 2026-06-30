@@ -35,3 +35,11 @@ export const uploadPrescriptionDocument = asyncHandler(async (req, res) => {
   );
   res.status(200).json(new ApiResponse(200, prescription, 'Document uploaded'));
 });
+
+export const getPrescriptionPdf = asyncHandler(async (req, res) => {
+  const result = await prescriptionService.generatePrescriptionPdf(
+    req.user._id,
+    req.params.appointmentId
+  );
+  res.status(200).json(new ApiResponse(200, result, 'PDF ready'));
+});

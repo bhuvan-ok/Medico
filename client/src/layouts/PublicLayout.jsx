@@ -1,11 +1,14 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { FiSun, FiMoon } from 'react-icons/fi';
 import { useAuth } from '../hooks/useAuth.js';
+import { useTheme } from '../hooks/useTheme.js';
 import Button from '../components/ui/Button.jsx';
 import Avatar from '../components/ui/Avatar.jsx';
 
 export default function PublicLayout({ children }) {
-  const { user, isAuthenticated, handleLogout } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <div className="min-h-screen bg-surface">
@@ -21,6 +24,13 @@ export default function PublicLayout({ children }) {
             </Link>
           </nav>
           <div className="flex items-center gap-3">
+            <button
+              onClick={toggleTheme}
+              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              className="text-neutral hover:text-gray-900 transition-colors"
+            >
+              {theme === 'dark' ? <FiSun size={18} /> : <FiMoon size={18} />}
+            </button>
             {isAuthenticated ? (
               <>
                 <Button size="sm" onClick={() => navigate('/dashboard')}>

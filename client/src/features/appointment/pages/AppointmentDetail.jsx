@@ -11,8 +11,9 @@ import Avatar from '../../../components/ui/Avatar.jsx';
 import Spinner from '../../../components/ui/Spinner.jsx';
 import { formatDate } from '../../../utils/formatDate.js';
 import { formatCurrency } from '../../../utils/formatCurrency.js';
-import { FiStar, FiCalendar, FiClock, FiVideo, FiUser, FiDollarSign, FiArrowLeft, FiCheckCircle, FiFileText, FiDownload } from 'react-icons/fi';
+import { FiStar, FiCalendar, FiClock, FiVideo, FiUser, FiDollarSign, FiArrowLeft, FiCheckCircle, FiFileText, FiDownload, FiCpu } from 'react-icons/fi';
 import { ROLES } from '../../../lib/constants.js';
+import { drName } from '../../../utils/drName.js';
 
 export default function AppointmentDetail() {
   const { id } = useParams();
@@ -28,6 +29,7 @@ export default function AppointmentDetail() {
   const [comment, setComment] = useState('');
   const [reviewLoading, setReviewLoading] = useState(false);
   const [prescription, setPrescription] = useState(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
   const { register, handleSubmit } = useForm();
 
   useEffect(() => {
@@ -49,6 +51,22 @@ export default function AppointmentDetail() {
     setCancelModal(false);
     setAppointment((a) => ({ ...a, status: 'cancelled' }));
   });
+
+  const handleDownloadPdf = async () => {
+    setPdfLoading(true);
+    try {
+      const { data } = await axiosInstance.post(`/prescriptions/${id}/pdf`);
+      window.open(data.data.url, '_blank');
+      setPrescription((prev) => ({
+        ...prev,
+        documentUrl: { url: data.data.url },
+      }));
+    } catch {
+      toast.error('Could not generate PDF. Please try again.');
+    } finally {
+      setPdfLoading(false);
+    }
+  };
 
   const handleReview = async () => {
     if (!rating) return toast.error('Please select a rating');
@@ -91,7 +109,7 @@ export default function AppointmentDetail() {
             <Avatar src={other?.avatar?.url} name={other?.name} size="md" />
             <div>
               <p className="font-semibold text-gray-900">
-                {role === ROLES.PATIENT ? `Dr. ${other?.name}` : other?.name}
+                {role === ROLES.PATIENT ? drName(other?.name) : other?.name}
               </p>
               <p className="text-sm text-neutral">{other?.email}</p>
             </div>
@@ -144,12 +162,22 @@ export default function AppointmentDetail() {
               <FiFileText size={15} className="text-primary" />
               <h2 className="font-semibold text-gray-900 text-sm">Prescription</h2>
             </div>
-            {prescription.documentUrl?.url && (
-              <a href={prescription.documentUrl.url} target="_blank" rel="noreferrer">
-                <button className="flex items-center gap-1 text-xs text-primary hover:underline">
-                  <FiDownload size={12} /> Download
+            {role === ROLES.PATIENT && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleDownloadPdf}
+                  disabled={pdfLoading}
+                  className="flex items-center gap-1 text-xs text-primary hover:underline disabled:opacity-50"
+                >
+                  <FiDownload size={12} /> {pdfLoading ? 'Generating...' : 'Download PDF'}
                 </button>
-              </a>
+                <button
+                  onClick={() => navigate(`/dashboard/ai/analyzer?prescriptionId=${prescription._id}`)}
+                  className="flex items-center gap-1 text-xs text-secondary hover:underline"
+                >
+                  <FiCpu size={12} /> Analyze with AI
+                </button>
+              </div>
             )}
           </div>
 
@@ -233,7 +261,7 @@ export default function AppointmentDetail() {
       <Modal isOpen={reviewModal} onClose={() => setReviewModal(false)} title="Rate Your Experience">
         <div className="space-y-4">
           <p className="text-sm text-neutral">
-            How was your consultation with Dr. {doctorId?.name}?
+            How was your consultation with {drName(doctorId?.name)}?
           </p>
           <div className="flex gap-2 justify-center py-2">
             {Array.from({ length: 5 }).map((_, i) => (

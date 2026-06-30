@@ -7,6 +7,7 @@ import Pagination from '../../../components/ui/Pagination.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import SkeletonCard from '../../../components/ui/SkeletonCard.jsx';
 import { formatDate } from '../../../utils/formatDate.js';
+import { drName } from '../../../utils/drName.js';
 import { formatCurrency } from '../../../utils/formatCurrency.js';
 
 export default function AdminAppointments() {
@@ -56,7 +57,7 @@ export default function AdminAppointments() {
           {appointments.map((a) => (
             <div key={a._id} className="bg-white rounded-xl border border-border p-4 flex items-center gap-4 flex-wrap">
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900">{a.patientId?.name} → Dr. {a.doctorId?.name}</p>
+                <p className="text-sm font-medium text-gray-900">{a.patientId?.name} → {drName(a.doctorId?.name)}</p>
                 <p className="text-xs text-neutral">
                   {a.slotId ? formatDate(a.slotId.date) : '—'} · {a.slotId?.startTime} · {a.type} · {formatCurrency(a.consultationFee)}
                 </p>

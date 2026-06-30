@@ -7,6 +7,7 @@ import Button from '../../../components/ui/Button.jsx';
 import Spinner from '../../../components/ui/Spinner.jsx';
 import Avatar from '../../../components/ui/Avatar.jsx';
 import { formatDate } from '../../../utils/formatDate.js';
+import { drName } from '../../../utils/drName.js';
 import { formatCurrency } from '../../../utils/formatCurrency.js';
 import { FiCreditCard, FiLock, FiCalendar, FiClock, FiVideo, FiUser, FiCheckCircle } from 'react-icons/fi';
 
@@ -119,7 +120,7 @@ export default function BookAppointment() {
         amount,
         currency,
         name: 'MediBook',
-        description: `Consultation with Dr. ${doctor.userId?.name}`,
+        description: `Consultation with ${drName(doctor.userId?.name)}`,
         order_id: orderId,
         handler: async (response) => {
           try {
@@ -172,7 +173,7 @@ export default function BookAppointment() {
       <div className="bg-white rounded-xl border border-border p-5 flex items-center gap-4">
         <Avatar src={doctor.userId?.avatar?.url} name={doctor.userId?.name} size="lg" />
         <div>
-          <p className="font-semibold text-gray-900">Dr. {doctor.userId?.name}</p>
+          <p className="font-semibold text-gray-900">{drName(doctor.userId?.name)}</p>
           <p className="text-sm text-primary">{doctor.specialization}</p>
           <p className="text-sm text-neutral font-medium">{formatCurrency(doctor.consultationFee)} consultation fee</p>
         </div>

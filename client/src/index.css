@@ -11,4 +11,59 @@ body {
   font-family: 'Inter', sans-serif;
   background-color: #F8FAFC;
   color: #1e293b;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
+
+/* ── Dark mode global overrides ────────────────────────────────────────────────
+   .dark is applied to <html>. Two-class selectors (.dark .bg-white) have higher
+   specificity than Tailwind's single-class utilities, so no !important needed.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.dark body {
+  background-color: #0F172A;
+  color: #F1F5F9;
+}
+
+/* Backgrounds */
+.dark .bg-white   { background-color: #1E293B; }
+.dark .bg-surface { background-color: #0F172A; }
+.dark .bg-gray-50 { background-color: #0F172A; }
+.dark .bg-gray-100 { background-color: #1E293B; }
+.dark .bg-card    { background-color: #1E293B; }
+
+/* Borders */
+.dark .border-border   { border-color: #334155; }
+.dark .border-gray-100 { border-color: #334155; }
+.dark .border-gray-200 { border-color: #334155; }
+
+/* Text */
+.dark .text-gray-900 { color: #F1F5F9; }
+.dark .text-gray-800 { color: #F1F5F9; }
+.dark .text-gray-700 { color: #CBD5E1; }
+.dark .text-gray-600 { color: #94A3B8; }
+.dark .text-gray-500 { color: #64748B; }
+.dark .text-gray-400 { color: #475569; }
+.dark .text-neutral  { color: #94A3B8; }
+
+/* Form controls */
+.dark input:not([type='checkbox']):not([type='radio']):not([type='range']),
+.dark textarea,
+.dark select {
+  background-color: #1E293B;
+  color: #F1F5F9;
+  border-color: #334155;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #475569;
+}
+
+/* Hover states */
+.dark .hover\:bg-gray-50:hover  { background-color: #1E293B; }
+.dark .hover\:bg-gray-100:hover { background-color: #334155; }
+.dark .hover\:text-gray-900:hover { color: #F1F5F9; }
+
+/* Scrollbar (subtle) */
+.dark ::-webkit-scrollbar-track { background: #1E293B; }
+.dark ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }

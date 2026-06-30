@@ -8,6 +8,7 @@ import SkeletonCard from '../../../components/ui/SkeletonCard.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Pagination from '../../../components/ui/Pagination.jsx';
 import Avatar from '../../../components/ui/Avatar.jsx';
+import { drName } from '../../../utils/drName.js';
 import { formatCurrency } from '../../../utils/formatCurrency.js';
 import { FiStar, FiMapPin, FiClock, FiVideo, FiUser, FiSearch, FiBriefcase } from 'react-icons/fi';
 import { SPECIALIZATIONS } from '../../../lib/constants.js';
@@ -106,7 +107,7 @@ function DoctorCard({ doctor, onView }) {
         <Avatar src={doctor.userId?.avatar?.url} name={doctor.userId?.name} size="lg" />
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-gray-900 group-hover:text-primary transition-colors truncate">
-            Dr. {doctor.userId?.name}
+            {drName(doctor.userId?.name)}
           </h3>
           <p className="text-sm text-primary font-medium">{doctor.specialization}</p>
           <div className="flex items-center gap-1 mt-1">

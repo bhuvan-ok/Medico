@@ -1,15 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate, Outlet } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import {
   FiHome, FiCalendar, FiUser, FiFileText, FiSettings,
-  FiBell, FiLogOut, FiMenu, FiUsers, FiBarChart2,
+  FiBell, FiLogOut, FiMenu, FiUsers, FiBarChart2, FiCpu, FiActivity,
+  FiSun, FiMoon,
 } from 'react-icons/fi';
 import { useAuth } from '../hooks/useAuth.js';
 import { logoutThunk } from '../features/auth/authSlice.js';
 import Avatar from '../components/ui/Avatar.jsx';
 import { useNotifications } from '../hooks/useNotifications.js';
+import { NotificationsProvider } from '../features/notification/NotificationsContext.jsx';
 import { ROLES } from '../lib/constants.js';
+import socket from '../lib/socket.js';
+import { VideoCallProvider, useVideoCall } from '../features/video/VideoCallContext.jsx';
+import VideoCallModal from '../features/video/VideoCallModal.jsx';
+import { useTheme } from '../hooks/useTheme.js';
 
 const NAV_LINKS = {
   [ROLES.PATIENT]: [
@@ -17,6 +23,8 @@ const NAV_LINKS = {
     { to: '/dashboard/appointments', label: 'Appointments', icon: FiCalendar },
     { to: '/dashboard/prescriptions', label: 'Prescriptions', icon: FiFileText },
     { to: '/dashboard/medical-reports', label: 'Medical Reports', icon: FiFileText },
+    { to: '/dashboard/ai/symptom-checker', label: 'Symptom Checker', icon: FiActivity },
+    { to: '/dashboard/ai/analyzer', label: 'AI Health Analyzer', icon: FiCpu },
     { to: '/dashboard/profile', label: 'Profile', icon: FiUser },
   ],
   [ROLES.DOCTOR]: [
@@ -34,15 +42,29 @@ const NAV_LINKS = {
   ],
 };
 
-export default function DashboardLayout({ children = null }) {
+function LayoutInner() {
   const { user, role } = useAuth();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { unreadCount } = useNotifications();
+  const { theme, toggleTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { callState, receiveCall } = useVideoCall();
 
   const navLinks = NAV_LINKS[role] || [];
   const baseRoute = role === ROLES.DOCTOR ? '/doctor' : role === ROLES.ADMIN ? '/admin' : '/dashboard';
+
+  useEffect(() => {
+    if (!user?._id) return;
+    socket.emit('join-user-room', { userId: user._id });
+  }, [user?._id]);
+
+  useEffect(() => {
+    if (!user?._id) return;
+    const onIncomingCall = ({ appointmentId, caller }) => receiveCall(appointmentId, caller);
+    socket.on('video:incoming-call', onIncomingCall);
+    return () => socket.off('video:incoming-call', onIncomingCall);
+  }, [user?._id, receiveCall]);
 
   const handleLogout = () => {
     dispatch(logoutThunk());
@@ -124,6 +146,13 @@ export default function DashboardLayout({ children = null }) {
           </button>
           <div className="flex-1" />
           <div className="flex items-center gap-3">
+            <button
+              onClick={toggleTheme}
+              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              className="text-neutral hover:text-gray-900 transition-colors"
+            >
+              {theme === 'dark' ? <FiSun size={20} /> : <FiMoon size={20} />}
+            </button>
             <Link to={`${baseRoute}/notifications`} className="relative text-neutral hover:text-gray-900">
               <FiBell size={20} />
               {unreadCount > 0 && (
@@ -140,9 +169,21 @@ export default function DashboardLayout({ children = null }) {
 
         {/* Page content */}
         <main className="flex-1 overflow-y-auto p-6">
-          {children ?? <Outlet />}
+          <Outlet />
         </main>
       </div>
+
+      {callState && <VideoCallModal />}
     </div>
+  );
+}
+
+export default function DashboardLayout() {
+  return (
+    <NotificationsProvider>
+      <VideoCallProvider>
+        <LayoutInner />
+      </VideoCallProvider>
+    </NotificationsProvider>
   );
 }

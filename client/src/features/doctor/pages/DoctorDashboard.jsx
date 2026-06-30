@@ -7,6 +7,7 @@ import Avatar from '../../../components/ui/Avatar.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import SkeletonCard from '../../../components/ui/SkeletonCard.jsx';
 import { formatDate } from '../../../utils/formatDate.js';
+import { drName } from '../../../utils/drName.js';
 import { formatCurrency } from '../../../utils/formatCurrency.js';
 import {
   FiCalendar, FiCheckCircle, FiClock, FiSettings,
@@ -60,7 +61,7 @@ export default function DoctorDashboard() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sky-100 text-sm font-medium">{greeting}</p>
-            <h1 className="text-2xl font-bold mt-0.5">Dr. {user?.name?.split(' ')[0]}</h1>
+            <h1 className="text-2xl font-bold mt-0.5">{drName(user?.name?.split(' ')[0])}</h1>
             <p className="text-sky-100 text-sm mt-1">
               {stats?.pending > 0
                 ? `You have ${stats.pending} pending appointment${stats.pending > 1 ? 's' : ''} awaiting your response.`

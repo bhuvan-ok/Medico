@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MediBook — AI-Powered Doctor Appointment Platform</title>
     <meta name="description" content="Book appointments with verified doctors, manage your health records, and consult from anywhere." />
+    <!-- Apply saved theme before React mounts to prevent flash of wrong theme -->
+    <script>
+      (function () {
+        try {
+          if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (_) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

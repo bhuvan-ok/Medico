@@ -40,4 +40,6 @@ export const env = {
 
   RAZORPAY_KEY_ID: _required('RAZORPAY_KEY_ID'),
   RAZORPAY_KEY_SECRET: _required('RAZORPAY_KEY_SECRET'),
+
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
 };

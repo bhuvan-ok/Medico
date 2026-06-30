@@ -10,12 +10,17 @@ import EmptyState from '../../../components/ui/EmptyState.jsx';
 import SkeletonCard from '../../../components/ui/SkeletonCard.jsx';
 import Pagination from '../../../components/ui/Pagination.jsx';
 import { formatDate } from '../../../utils/formatDate.js';
-import { FiFileText } from 'react-icons/fi';
+import { FiFileText, FiVideo } from 'react-icons/fi';
+import { useVideoCall } from '../../video/VideoCallContext.jsx';
+import socket from '../../../lib/socket.js';
+import { useAuth } from '../../../hooks/useAuth.js';
 
 const STATUSES = ['', 'pending', 'confirmed', 'completed', 'cancelled'];
 
 export default function ManageAppointments() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { initiateCall, callState } = useVideoCall();
   const [appointments, setAppointments] = useState([]);
   const [pagination, setPagination] = useState({});
   const [loading, setLoading] = useState(true);
@@ -53,6 +58,14 @@ export default function ManageAppointments() {
     await axiosInstance.patch(`/doctors/me/appointments/${id}/complete`);
     toast.success('Appointment marked as completed');
     fetch();
+  };
+
+  const startVideoCall = (appt) => {
+    if (callState) return toast.error('A call is already in progress');
+    // Notify patient via socket
+    socket.emit('video:call-request', { appointmentId: appt._id });
+    // Open video modal as caller
+    initiateCall(appt._id, { name: appt.patientId?.name, avatar: appt.patientId?.avatar?.url }, appt.patientId?._id);
   };
 
   return (
@@ -101,8 +114,14 @@ export default function ManageAppointments() {
                 </div>
               )}
               {appt.status === 'confirmed' && (
-                <div className="mt-3 pt-3 border-t border-border">
+                <div className="mt-3 pt-3 border-t border-border flex gap-2 flex-wrap">
                   <Button variant="outline" size="sm" onClick={() => complete(appt._id)}>Mark Complete</Button>
+                  {appt.type === 'video' && (
+                    <Button size="sm" className="gap-1.5 bg-green-600 hover:bg-green-700 text-white border-0"
+                      onClick={() => startVideoCall(appt)}>
+                      <FiVideo size={13} /> Start Video Call
+                    </Button>
+                  )}
                 </div>
               )}
               {appt.status === 'completed' && (

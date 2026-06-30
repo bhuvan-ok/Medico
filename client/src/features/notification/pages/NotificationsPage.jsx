@@ -1,5 +1,5 @@
+import { useEffect } from 'react';
 import { useNotifications } from '../../../hooks/useNotifications.js';
-import Button from '../../../components/ui/Button.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import SkeletonCard from '../../../components/ui/SkeletonCard.jsx';
 import { formatDateTime } from '../../../utils/formatDate.js';
@@ -8,15 +8,16 @@ import { cn } from '../../../utils/cn.js';
 export default function NotificationsPage() {
   const { notifications, loading, markAllRead, unreadCount } = useNotifications();
 
+  // Auto-clear badge as soon as user opens this page
+  useEffect(() => {
+    if (unreadCount > 0) markAllRead();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className="max-w-2xl space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
-        {unreadCount > 0 && (
-          <Button variant="outline" size="sm" onClick={markAllRead}>
-            Mark all as read
-          </Button>
-        )}
       </div>
 
       {loading ? (

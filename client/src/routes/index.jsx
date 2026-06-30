@@ -50,6 +50,10 @@ import Analytics from '../features/admin/pages/Analytics.jsx';
 // Notification
 import NotificationsPage from '../features/notification/pages/NotificationsPage.jsx';
 
+// AI pages
+import SymptomChecker from '../features/ai/pages/SymptomChecker.jsx';
+import PrescriptionAnalyzer from '../features/ai/pages/PrescriptionAnalyzer.jsx';
+
 const Loading = () => (
   <div className="flex items-center justify-center min-h-screen">
     <Spinner size="lg" />
@@ -105,6 +109,8 @@ export default function AppRoutes() {
           <Route path="profile" element={<PatientProfile />} />
           <Route path="notifications" element={<NotificationsPage />} />
           <Route path="book/:doctorId" element={<BookAppointment />} />
+          <Route path="ai/symptom-checker" element={<SymptomChecker />} />
+          <Route path="ai/analyzer" element={<PrescriptionAnalyzer />} />
         </Route>
 
         {/* Doctor dashboard — nested routes */}

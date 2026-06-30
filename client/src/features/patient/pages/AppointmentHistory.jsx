@@ -8,6 +8,7 @@ import Pagination from '../../../components/ui/Pagination.jsx';
 import Avatar from '../../../components/ui/Avatar.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import { formatDate } from '../../../utils/formatDate.js';
+import { drName } from '../../../utils/drName.js';
 import { formatCurrency } from '../../../utils/formatCurrency.js';
 import { FiCalendar, FiVideo, FiUser, FiClock, FiChevronRight } from 'react-icons/fi';
 
@@ -81,7 +82,7 @@ export default function AppointmentHistory() {
               <Avatar src={appt.doctorId?.avatar?.url} name={appt.doctorId?.name} />
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-gray-900 group-hover:text-primary transition-colors">
-                  Dr. {appt.doctorId?.name}
+                  {drName(appt.doctorId?.name)}
                 </p>
                 <div className="flex items-center gap-3 mt-0.5 text-sm text-neutral flex-wrap">
                   <span className="flex items-center gap-1">

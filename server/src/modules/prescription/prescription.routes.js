@@ -30,4 +30,7 @@ router.patch(
   prescriptionController.uploadPrescriptionDocument
 );
 
+// Generate (or return cached) PDF for a prescription
+router.post('/:appointmentId/pdf', prescriptionController.getPrescriptionPdf);
+
 export default router;

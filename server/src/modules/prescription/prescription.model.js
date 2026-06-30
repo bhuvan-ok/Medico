@@ -30,6 +30,8 @@ const prescriptionSchema = new mongoose.Schema(
       url: { type: String, default: '' },
       publicId: { type: String, default: '' },
     },
+    aiSummary: { type: String, default: '' },
+    aiAnalysis: { type: mongoose.Schema.Types.Mixed, default: null },
   },
   { timestamps: true }
 );

@@ -6,6 +6,7 @@ import Avatar from '../../../components/ui/Avatar.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Spinner from '../../../components/ui/Spinner.jsx';
 import { formatCurrency } from '../../../utils/formatCurrency.js';
+import { drName } from '../../../utils/drName.js';
 import {
   FiStar, FiClock, FiMapPin, FiGlobe, FiCheckCircle,
   FiAward, FiMessageSquare, FiVideo, FiUser,
@@ -60,7 +61,7 @@ export default function DoctorPublicProfilePage() {
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-2xl font-bold text-gray-900">Dr. {doctor.userId?.name}</h1>
+                <h1 className="text-2xl font-bold text-gray-900">{drName(doctor.userId?.name)}</h1>
                 {doctor.isVerified && (
                   <span className="inline-flex items-center gap-1 text-xs font-semibold text-success bg-success/10 px-2 py-0.5 rounded-full">
                     <FiCheckCircle size={11} /> Verified

@@ -7,7 +7,8 @@ import Button from '../../../components/ui/Button.jsx';
 import SkeletonCard from '../../../components/ui/SkeletonCard.jsx';
 import Avatar from '../../../components/ui/Avatar.jsx';
 import { formatDate } from '../../../utils/formatDate.js';
-import { FiCalendar, FiFileText, FiSearch, FiPlusCircle, FiTrendingUp, FiClipboard } from 'react-icons/fi';
+import { drName } from '../../../utils/drName.js';
+import { FiCalendar, FiFileText, FiSearch, FiPlusCircle, FiTrendingUp, FiClipboard, FiCpu, FiX } from 'react-icons/fi';
 
 const StatCard = ({ label, value, icon: Icon, color }) => (
   <div className="bg-white rounded-xl border border-border p-5 flex items-center gap-4">
@@ -26,13 +27,15 @@ export default function PatientDashboard() {
   const [appointments, setAppointments] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [aiNudge, setAiNudge] = useState(null); // { prescriptionId, doctorName }
+  const [nudgeDismissed, setNudgeDismissed] = useState(false);
 
   useEffect(() => {
     Promise.all([
       axiosInstance.get('/patients/me/appointments?status=pending&limit=5'),
       axiosInstance.get('/patients/me/appointments?status=confirmed&limit=1'),
       axiosInstance.get('/patients/me/appointments?status=completed&limit=1'),
-      axiosInstance.get('/patients/me/prescriptions?limit=1'),
+      axiosInstance.get('/patients/me/prescriptions?limit=3'),
     ])
       .then(([upcomingRes, confirmedRes, completedRes, rxRes]) => {
         setAppointments(upcomingRes.data.data);
@@ -42,6 +45,11 @@ export default function PatientDashboard() {
           completed: completedRes.data.pagination?.total ?? 0,
           prescriptions: rxRes.data.pagination?.total ?? 0,
         });
+        // Show nudge for the latest prescription that hasn't been AI-analyzed
+        const unanalyzed = rxRes.data.data?.find((p) => !p.aiSummary);
+        if (unanalyzed) {
+          setAiNudge({ prescriptionId: unanalyzed._id, doctorName: unanalyzed.doctorId?.name });
+        }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -67,6 +75,31 @@ export default function PatientDashboard() {
           <Avatar src={user?.avatar?.url} name={user?.name} size="lg" className="border-2 border-white/30" />
         </div>
       </div>
+
+      {/* AI nudge — show if patient has an unanalyzed prescription */}
+      {aiNudge && !nudgeDismissed && (
+        <div className="bg-gradient-to-r from-secondary/10 to-primary/10 border border-primary/20 rounded-xl p-4 flex items-center gap-4">
+          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <FiCpu size={18} className="text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-gray-900">New prescription available</p>
+            <p className="text-xs text-neutral">
+              {drName(aiNudge.doctorName)} has issued a prescription. Let AI summarize it in plain language.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Link to={`/dashboard/ai/analyzer?prescriptionId=${aiNudge.prescriptionId}`}>
+              <Button size="sm" className="gap-1.5">
+                <FiCpu size={12} /> Analyze
+              </Button>
+            </Link>
+            <button onClick={() => setNudgeDismissed(true)} className="text-neutral hover:text-gray-700">
+              <FiX size={16} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       {loading ? (
@@ -134,7 +167,7 @@ export default function PatientDashboard() {
               >
                 <Avatar src={appt.doctorId?.avatar?.url} name={appt.doctorId?.name} size="md" />
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900">Dr. {appt.doctorId?.name}</p>
+                  <p className="font-medium text-gray-900">{drName(appt.doctorId?.name)}</p>
                   <p className="text-sm text-neutral">
                     {appt.slotId ? formatDate(appt.slotId.date) : '—'} at {appt.slotId?.startTime}
                     <span className="mx-1.5">·</span>

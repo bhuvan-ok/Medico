@@ -20,6 +20,7 @@ import prescriptionRoutes from './modules/prescription/prescription.routes.js';
 import notificationRoutes from './modules/notification/notification.routes.js';
 import adminRoutes from './modules/admin/admin.routes.js';
 import paymentRoutes from './modules/payment/payment.routes.js';
+import aiRoutes from './modules/ai/ai.routes.js';
 import { getDoctorReviews } from './modules/review/review.controller.js';
 
 const app = express();
@@ -69,6 +70,7 @@ app.use('/api/v1/prescriptions', prescriptionRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/payments', paymentRoutes);
+app.use('/api/v1/ai', aiRoutes);
 
 // 404
 app.use((_req, res) => {
