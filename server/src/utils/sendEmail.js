@@ -6,7 +6,7 @@ import { env } from '../config/env.js';
 // a mismatched From header, which causes emails to be dropped or spam-flagged.
 export const sendEmail = async ({ to, subject, html }) => {
   const send = transporter.sendMail({
-    from: `MediBook <${env.EMAIL_USER}>`,
+    from: env.EMAIL_FROM || `MediBook <${env.EMAIL_USER}>`,
     to,
     subject,
     html,
